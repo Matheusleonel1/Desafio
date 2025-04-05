@@ -8,7 +8,7 @@ print(" Para que a contagem seja feita de forma correta, será necessário infor
 print(" Por exemplo: se a área desejada for de 100 metros quadrados (100 m²), insira apenas o número 100")
 
 # Entrada de dados
-m2 = float(input("Informe o tamanho em metros quadrados da área que deseja pintar")) # m2 = mestros quadrados
+m2 = float(input("Informe o tamanho em metros quadrados da área que deseja pintar")) # m2 = metros quadrados
 
 # Processamento de dados
 quantidade_tinta =  m2/3
@@ -19,6 +19,6 @@ valor_compra = quantidade_latas * 130.00
 
 # Saida dos dados
 print(f"A quantidade de tinta que será usada é {quantidade_tinta:.2f} litros")
-print(f"A quantidade de latas nescessarias que serão usadas é {quantidade_latas:.2f}")
+print(f"A quantidade de latas necessarias que serão usadas é {quantidade_latas:.2f}")
 print(f"O valor final de sua compra é de: {valor_compra:.2f} reais")
 
