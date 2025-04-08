@@ -13,7 +13,7 @@ m2 = float(input("Informe o tamanho em metros quadrados da área que deseja pint
 # Processamento de dados
 quantidade_tinta =  m2/3
 latas = 18  # litros
-quantidade_latas = math.ceil(quantidade_tinta / latas)
+quantidade_latas = math.ceil(quantidade_tinta / latas) # arredondar um número para cima
 valor_compra = quantidade_latas * 130.00
 
 
