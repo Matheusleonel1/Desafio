@@ -1,0 +1,120 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+
+# 1. Carregando os dados
+print('\n------- Obtendo dados -------')
+caminho_arquivo = 'bases/base_dados_sorvete_clima.csv'
+df_sorvetes = pd.read_csv(caminho_arquivo, sep=',', encoding='utf-8')
+
+print('\n------- Dados carregados -------\n')
+print(df_sorvetes.head())
+print("\nColunas disponíveis:", df_sorvetes.columns.to_list())
+
+# 2. Criando arrays
+array_producao = np.array(df_sorvetes['Producao_Sorvete'])
+array_temperatura = np.array(df_sorvetes['Temperatura_Media'])
+array_umidade = np.array(df_sorvetes['Umidade'])
+
+# 3. Estatísticas descritivas
+media_producao = np.mean(array_producao)
+mediana_producao = np.median(array_producao)
+
+media_temp = np.mean(array_temperatura)
+mediana_temp = np.median(array_temperatura)
+
+media_umidade = np.mean(array_umidade)
+mediana_umidade = np.median(array_umidade)
+
+# 4. Quartis e IQR
+q1_producao = np.quantile(array_producao, 0.25)
+q3_producao = np.quantile(array_producao, 0.75)
+iqr_producao = q3_producao - q1_producao
+lim_sup_producao = q3_producao + 1.5 * iqr_producao
+lim_inf_producao = q1_producao - 1.5 * iqr_producao
+
+q1_temp = np.quantile(array_temperatura, 0.25)
+q3_temp = np.quantile(array_temperatura, 0.75)
+iqr_temp = q3_temp - q1_temp
+lim_sup_temp = q3_temp + 1.5 * iqr_temp
+lim_inf_temp = q1_temp - 1.5 * iqr_temp
+
+q1_umid = np.quantile(array_umidade, 0.25)
+q3_umid = np.quantile(array_umidade, 0.75)
+iqr_umid = q3_umid - q1_umid
+lim_sup_umid = q3_umid + 1.5 * iqr_umid
+lim_inf_umid = q1_umid - 1.5 * iqr_umid
+
+# 5. Outliers superiores
+outliers_producao = df_sorvetes[df_sorvetes['Producao_Sorvete'] > lim_sup_producao].sort_values(by='Producao_Sorvete', ascending=False).head(10)
+outliers_temp = df_sorvetes[df_sorvetes['Temperatura_Media'] > lim_sup_temp].sort_values(by='Temperatura_Media', ascending=False).head(10)
+
+# 6. Correlação
+corr_temp_producao = np.corrcoef(array_producao, array_temperatura)[0][1]
+corr_umid_producao = np.corrcoef(array_producao, array_umidade)[0][1]
+
+# 7. Regressão Linear
+X = df_sorvetes[['Temperatura_Media']]
+y = df_sorvetes[['Producao_Sorvete']]
+
+modelo = LinearRegression()
+modelo.fit(X, y)
+
+coef_angular = modelo.coef_[0][0]
+intercepto = modelo.intercept_[0]
+r2 = modelo.score(X, y)
+
+# 8. Visualização em subplots
+plt.figure(figsize=(18, 12))
+plt.suptitle('Análise Estatística e Regressão - Sorveteria', fontsize=18)
+
+# Subplot 1 - Outliers Produção
+plt.subplot(3, 2, 1)
+plt.title('Top 10 Outliers - Produção de Sorvete')
+plt.barh(outliers_producao['Data'], outliers_producao['Producao_Sorvete'], color='skyblue')
+plt.xlabel('Produção')
+plt.ylabel('Data')
+
+# Subplot 2 - Outliers Temperatura
+plt.subplot(3, 2, 2)
+plt.title('Top 10 Outliers - Temperatura')
+plt.barh(outliers_temp['Data'], outliers_temp['Temperatura_Media'], color='salmon')
+plt.xlabel('Temperatura')
+plt.ylabel('Data')
+
+# Subplot 3 - Correlação (scatterplot)
+plt.subplot(3, 2, 3)
+plt.title('Correlação: Temperatura x Produção')
+sns.scatterplot(x='Temperatura_Media', y='Producao_Sorvete', data=df_sorvetes)
+plt.xlabel('Temperatura Média')
+plt.ylabel('Produção de Sorvete')
+
+# Subplot 4 - Regressão
+plt.subplot(3, 2, 4)
+plt.title('Regressão Linear: Temperatura x Produção')
+sns.regplot(x='Temperatura_Media', y='Producao_Sorvete', data=df_sorvetes, ci=None, color='green')
+plt.xlabel('Temperatura Média')
+plt.ylabel('Produção de Sorvete')
+
+# Subplot 5 - Medidas Estatísticas
+plt.subplot(3, 2, 5)
+plt.title('Resumo Estatístico', fontsize=14)
+plt.axis('off')
+plt.text(0.01, 0.9, f'Correlação Temp x Produção: {corr_temp_producao:.3f}', fontsize=12)
+plt.text(0.01, 0.8, f'Correlação Umidade x Produção: {corr_umid_producao:.3f}', fontsize=12)
+plt.text(0.01, 0.7, f'Coef. Angular: {coef_angular:.2f}', fontsize=12)
+plt.text(0.01, 0.6, f'Intercepto: {intercepto:.2f}', fontsize=12)
+plt.text(0.01, 0.5, f'R² (R2): {r2:.3f}', fontsize=12)
+plt.text(0.01, 0.4, f'Média Produção: {media_producao:.2f}', fontsize=12)
+plt.text(0.01, 0.3, f'Média Temperatura: {media_temp:.2f}', fontsize=12)
+plt.text(0.01, 0.2, f'Média Umidade: {media_umidade:.2f}', fontsize=12)
+
+# Subplot 6 - Reservado para algo adicional
+plt.subplot(3, 2, 6)
+plt.axis('off')
+plt.text(0.1, 0.5, 'Espaço reservado para outro gráfico ou tabela', fontsize=12)
+
+plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+plt.show()
